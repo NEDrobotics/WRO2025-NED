@@ -154,24 +154,24 @@ Power distributed via **LM2596 regulators** for stable voltage.
 
 | Amount | Component | Notes | Prices |
 |--------|-----------|-------|--------|
-| 1 | [Arduino Mega 2560](other/arduinomega.jpg) | Main controller | <abbr title="10.7 USD (September 2025)">18.2₼</abbr> |
-| 4 | [LM2596 buck converters](other/lm2596.jpg) | Voltage regulation | <abbr title="1.52 USD (September 2025)">2.6₼</abbr> |
-| 1 | [L298N motor driver](other/l296n.jpg) | Motor control | <abbr title="2.05 USD (September 2025)">3.5₼</abbr> |
-| 1 | [12V DC Motor](other/dc.jpg) | Drive | Free* |
-| 3 | [Ultrasonic sensors](other/ultrasonic.jpg) | Distance measurement | <abbr title="4.7 USD (September 2025)">8₼</abbr> |
-| 1 | [HuskyLens Pro AI camera](other/huskylens.jpg) | Vision | Free* |
-| 1 | [MG90 servo motor (180°)](other/mg90.jpg) | Steering | <abbr title="2.64 USD (September 2025)">4.5₼</abbr> |
-| 4 | [Li-ion 18650 Battery](other/li-ion.jpg) | Power source | <abbr title="11.17 USD (September 2025)">19₼</abbr> |
-| 1 | [2x18650 Battery Holder](other/holder.jpg) | Misc | <abbr title="2.52 USD (September 2025)">4.3₼</abbr> | 
-| 1 | [Lithium Batter charger](other/charger.jpg) | Misc | <abbr title="8.17 USD (September 2025)">13.9₼</abbr> |
-| 3 | [LEDs](other/light.jpg) | Misc | Free* |
-| 1 | [16v 4700µ Capacitor](other/16v.jpg) | Misc | <abbr title="1.76 USD (September 2025)">3₼</abbr> |
-| 2 | [25v 4700µ Capacitors](other/25v.jpg) | Misc | <abbr title="2.05 USD (September 2025)">3.5₼</abbr> |
-| Various | Wires, connectors, 3D-printed parts, Lego chassis | Assembly | Free* |
+| 1 | [Arduino Mega 2560](other/arduinomega.jpg) | Main controller | 18.2₼ (10.7$) |
+| 4 | [LM2596 buck converters](other/lm2596.jpg) | Voltage regulation | 2.6₼ (1.52$) |
+| 1 | [L298N motor driver](other/l296n.jpg) | Motor control | 3.5₼ (2.05$) |
+| 1 | [12V DC Motor](other/dc.jpg) | Drive | Free |
+| 3 | [Ultrasonic sensors](other/ultrasonic.jpg) | Distance measurement | 8₼ (4.7$) |
+| 1 | [HuskyLens Pro AI camera](other/huskylens.jpg) | Vision | Free |
+| 1 | [MG90 servo motor (180°)](other/mg90.jpg) | Steering | 4.5₼ (2.64$) |
+| 4 | [Li-ion 18650 Battery](other/li-ion.jpg) | Power source | 19₼ (11.17$) |
+| 1 | [2x18650 Battery Holder](other/holder.jpg) | Misc | 4.3₼ (2.52$) |
+| 1 | [Lithium Batter charger](other/charger.jpg) | Misc | 13.9₼ (8.17$) |
+| 3 | [LEDs](other/light.jpg) | Misc | Free |
+| 1 | [16v 4700µ Capacitor](other/16v.jpg) | Misc | 3₼ (1.76$) |
+| 2 | [25v 4700µ Capacitors](other/25v.jpg) | Misc | 3.5₼ (2.05$) |
+| Various | Wires, connectors, 3D-printed parts, Lego chassis | Assembly | Free |
 
-## **Total:** --- **<abbr title="49.4 USD (September 2025)">84₼</abbr>**
+## **Total:** --- **84₼< (49.4$)**
 
-##### We paid <abbr title="41.1 USD (September 2025)">70₼</abbr> for the map, and we already had the boards for the walls, which we painted with black spray paint.
+##### We paid 70₼< (41.1$) for the map, and we already had the boards for the walls, which we painted with black spray paint.
 ###### Items marked with “Free*” are parts that we had in previous races.
 
 ---

@@ -10,6 +10,7 @@ Our team consists of three members:
 We designed, built, and programmed an autonomous vehicle capable of competing in the WRO Future Engineers challenges.  
 This README explains our hardware, electronics, software modules, and the process to build and upload code to our robot.  
 The goal is to make our work **clear, reproducible, and useful for other teams.**
+
 <p> 
   <a href="https://www.labcenter.com" target="_blank">
     <img src="https://img.shields.io/badge/For%20Schematics-1032CF?logo=proteus&style=for-the-badge" />
@@ -17,6 +18,10 @@ The goal is to make our work **clear, reproducible, and useful for other teams.*
 
   <a href="https://www.arduino.cc/en/software" target="_blank">
     <img src="https://img.shields.io/badge/For%20Coding-00979D?logo=arduino&style=for-the-badge" />
+  </a>
+
+  <a href="https://www.tinkercad.com" target="_blank">
+    <img src="https://img.shields.io/badge/For%203D DESIGNS-02a4fb?logo=arduino&style=for-the-badge" />
   </a>
 
   <a href="https://www.youtube.com/@NEDRobotics" target="_blank">
@@ -76,7 +81,7 @@ The final build is **strong, lightweight, reliable, and modular**.
 ### 3.1 Power Management
 - **2S Li-ion 18650 Battery (7.4V):** Main power source  
 - **LM2596 Converters (x3):** 5V for logic, servos, sensors
-- **XL6009 Step up boost converter:** 12v for motor
+- **XL6009 Step up boost converter (x1):** 12v for motor
 
  Provides stable power for each module  
 
@@ -148,7 +153,160 @@ Power distributed via **LM2596 regulators** for stable voltage.
  - **Conventors and capacitors**
    - The LM2596 regulators reduce the voltage of the power coming from the battery and send it to the sensors/husklens and other components. *The capacitors supply the sudden current surge.*
 ### 5.5 Pseudo code
----
+<details> <summary>Click to see!</summary>
+
+```text
+
+# --- Constants / Globals ---
+DEFINE pins, servo mids, motor pins, button pin
+DEFINE targetdistance, Kp, Ki, Kd, I_MAX, I_MIN
+DEFINE alpha, servoUpdateInterval, MAX_CORRECTION_DEG
+DEFINE TURN_DEGREE, TURN_PWM, TURN_SETTLE_MS, TURN_TIMEOUT_MS
+DEFINE SIDE_TURN_STOP_CM, DELTA_TO_TRIGGER, IGNORE_AFTER_TURN_MS
+DEFINE BASE_SPEED, MIN_SPEED, SMALL_STEER_DEG
+DEFINE TURN_SIDE_MODE (0=auto,1=left,2=right)
+
+GLOBAL filteredLeft, filteredRight, filteredFront
+GLOBAL oldLeft, oldRight, baselineLeft, baselineRight
+GLOBAL integralTerm, lastError, lastPidTime
+GLOBAL lastServoUpdate, lastS1pos, lastS2pos
+GLOBAL ignoreUntil, turnCount, firstTurnDone, activeTurnMode
+
+# --- Low-level helpers ---
+FUNCTION readUltrasonicCm(trig, echo):
+  pulse trigger, measure echo with timeout
+  IF timeout return -1
+  RETURN distance_cm
+
+FUNCTION preciseSampleUltrasonics(samples=8, delayMs=20):
+  read sensors multiple times, average valid readings
+  assign to filteredLeft, filteredRight, filteredFront
+
+FUNCTION stopMotors():
+  set motor PWMs = 0
+
+FUNCTION setMotorsForward(forward, speed):
+  set motor driver pins and PWM for both motors (account wiring)
+
+# --- Steering helpers ---
+FUNCTION setSteerLeftMax(): write servos to s1mid+TURN_DEGREE, s2mid-TURN_DEGREE, update timestamp
+FUNCTION setSteerRightMax(): write servos to s1mid-TURN_DEGREE, s2mid+TURN_DEGREE, update timestamp
+FUNCTION centerSteering(): write servos to mids, update timestamp
+
+FUNCTION rotateUntilSideUnder(side, stopCm=SIDE_TURN_STOP_CM, timeoutMs=TURN_TIMEOUT_MS):
+  turnCount += 1
+  steer fully to side, start motors (low then TURN_PWM)
+  loop until filtered side < stopCm or timeout:
+    read that side, EMA-update filtered value
+  stopMotors(), delay(TURN_SETTLE_MS), centerSteering()
+  preciseSampleUltrasonics()
+  ignoreUntil = now + IGNORE_AFTER_TURN_MS
+
+# --- PID ---
+FUNCTION computePidOutput(measured):
+  dt = max(epsilon, (now - lastPidTime)/1000)
+  error = targetdistance - measured
+  integralTerm = clamp(integralTerm + error*dt, I_MIN, I_MAX)
+  derivative = (error - lastError)/dt
+  output = Kp*error + Ki*integralTerm + Kd*derivative
+  output = clamp(output, -MAX_CORRECTION_DEG, MAX_CORRECTION_DEG)
+  lastError = error; lastPidTime = now
+  RETURN output
+
+FUNCTION writeServosFromOutput(output):
+  rate-limit by servoUpdateInterval
+  s1pos = constrain(s1mid - output,0,180)
+  s2pos = constrain(s2mid + output,0,180)
+  write servos, update last positions and timestamp
+
+# --- Setup / Main loop ---
+FUNCTION setup():
+  Serial begin, configure pins and servos, write mids
+  lastPidTime = now; lastServoUpdate = now
+
+LOOP main:
+  IF button pressed -> call testProgram()
+  ELSE delay(20)
+
+# --- Test routine (compact) ---
+FUNCTION testProgram():
+  WHILE turnCount < 12:
+    drive forward (high speed)
+    read sensors once, EMA update filtered values
+    IF filteredFront < 50:
+      turnCount++
+      IF first-time-flag:
+        preciseSampleUltrasonics(6)
+        choose activeTurnMode by checking filteredLeft (if >80 then left else right)
+      pulse big servo deflection toward activeTurnMode for ~800ms, return to center
+    small nudge: if activeTurnMode==left and filteredRight<20 -> tiny left nudge; analogous for right
+  stopMotors()
+
+# --- Main autonomous routine (compact) ---
+FUNCTION runProgram():
+  delay(500); ignoreUntil=0; turnCount=0; firstTurnDone=false
+  preciseSampleUltrasonics(10); baselineLeft=filteredLeft; baselineRight=filteredRight
+  oldLeft = baselineLeft; oldRight = baselineRight
+
+  determine startInMiddle if both filtered sides > 35 cm
+  IF TURN_SIDE_MODE forced -> set activeTurnMode accordingly
+  ELSE IF startInMiddle -> activeTurnMode = 0 (unlocked)
+  ELSE activeTurnMode = side with smaller initial distance
+
+  WHILE turnCount < 11:
+    read sensors once, EMA update filteredLeft/Right/Front
+    turned = false
+
+    # 1) Auto-first-turn detection (only if AUTO mode & not done)
+    IF not firstTurnDone AND TURN_SIDE_MODE==0 AND now > ignoreUntil:
+      leftDelta = filteredLeft - oldLeft
+      rightDelta = filteredRight - oldRight
+      IF max(leftDelta, rightDelta) >= DELTA_TO_TRIGGER:
+        chosenSide = side with larger delta
+        preciseSampleUltrasonics(6)
+        IF (filteredChosen - oldChosen) >= DELTA_TO_TRIGGER:
+          activeTurnMode = chosenSide
+          firstTurnDone = true
+          perform simple timed servo turn toward chosenSide (short motor pulse + servo deflection)
+          reset PID (integralTerm, lastError, lastPidTime)
+          turned = true
+          stopMotors()
+          preciseSampleUltrasonics(6)
+
+    # 2) Side-specific trigger (locked mode)
+    IF not turned AND now > ignoreUntil:
+      IF activeTurnMode == LEFT AND filteredLeft - oldLeft >= DELTA_TO_TRIGGER:
+        preciseSampleUltrasonics(6)
+        IF still triggered: rotateUntilSideUnder(LEFT); reset PID; firstTurnDone=true; turned=true
+      ELSE IF activeTurnMode == RIGHT AND filteredRight - oldRight >= DELTA_TO_TRIGGER:
+        analogous for RIGHT
+
+    # 3) Normal wall-following if not turning
+    IF not turned:
+      beforeFirstTurn = (not firstTurnDone AND TURN_SIDE_MODE==0)
+      IF beforeFirstTurn AND filteredLeft>35 AND filteredRight>35:
+        centerSteering(); setMotorsForward(true, moderate_speed)
+      ELSE:
+        measured = (activeTurnMode==RIGHT) ? filteredRight : filteredLeft
+        pidOutput = computePidOutput(measured)
+        IF beforeFirstTurn: clamp pidOutput to SMALL_STEER_DEG
+        servoOutput = pidOutput * (activeTurnMode==RIGHT ? -1 : 1)
+        writeServosFromOutput(servoOutput)
+        compute speed reduction based on |pidOutput| and setMotorsForward(true, speed)
+
+    oldLeft = filteredLeft; oldRight = filteredRight
+    delay(20)
+
+  # finish sequence
+  driveForwardStraight(120)
+  apply small final servo offset then stopMotors()
+
+# --- End of pseudocode
+
+```
+
+</details>
+
 
 ## 6. Bill of Materials
 
@@ -162,6 +320,7 @@ Power distributed via **LM2596 regulators** for stable voltage.
 | 1 | [HuskyLens Pro AI camera](other/huskylens.jpg) | Vision | Free |
 | 1 | [MG90 servo motor (180°)](other/mg90.jpg) | Steering | 4.5₼ (2.64$) |
 | 4 | [Li-ion 18650 Battery](other/li-ion.jpg) | Power source | 19₼ (11.17$) |
+| 1 | [2S Li-Po Tattu 500mAh](other/li-po.jpg) | Power source | Free |
 | 1 | [2x18650 Battery Holder](other/holder.jpg) | Misc | 4.3₼ (2.52$) |
 | 1 | [Lithium Batter charger](other/charger.jpg) | Misc | 13.9₼ (8.17$) |
 | 3 | [LEDs](other/light.jpg) | Misc | Free |
@@ -169,9 +328,9 @@ Power distributed via **LM2596 regulators** for stable voltage.
 | 2 | [25v 4700µ Capacitors](other/25v.jpg) | Misc | 3.5₼ (2.05$) |
 | Various | Wires, connectors, 3D-printed parts, Lego chassis | Assembly | Free |
 
-## **Total:** --- **84₼< (49.4$)**
+## **Total:** --- **84₼ (49.4$)**
 
-##### We paid 70₼< (41.1$) for the map, and we already had the boards for the walls, which we painted with black spray paint.
+##### We paid 70₼ (41.1$) for the map, and we already had the boards for the walls, which we painted with black spray paint.
 ###### Items marked with “Free*” are parts that we had in previous races.
 
 ---
@@ -201,7 +360,7 @@ Power distributed via **LM2596 regulators** for stable voltage.
 ![The **scheme** of the robot](schemes/scheme.png) 
 
 ### Photos of the team *( /t-photos )*
-![Team photo](t-photos/team.jpeg) 
+![Team photo](t-photos/official.jpeg) 
 ![Funny photo](t-photos/funny.jpeg) 
 
 ---
@@ -213,7 +372,7 @@ During development we made important modifications:
 - We updated our HuskyLens camera with *HUSKYLENSWithModelV0.5.1bNorm* so it can better distinguish object colors and operate with fewer errors. The newer version slightly improved color recognition performance on the robot.
 - We made the robot **rear-wheel drive** to **minimize the friction force** on the wheels and make it more **stable** and **powerful**. 
 - Previously, there were no LEDs in front of the robot. Later, through experience, we realized that **it couldn't fully identify the colors of traffic signs**, so we placed three powerful **LEDs** on the front.
-- Our old capacitors were **16V 1500µF (x1) and 16V 1000µF (x2)**. We later realized that these were not enough. We replaced the old capacitors with new **16V 4700µ (x1) and 25V 4700µ (x2)** capacitors. The new ones provided more enough power for the motor.
+- Initially, we used **a single power source for the entire system**, but this later caused a number of problems. The reason for this was that the motor drew a sudden surge of current during startup, causing **voltage sag**. As a result, the Arduino and other modules would shut down and restart. As a solution, we **separated the power sources** for the motors (drive and servo motors). We also added **three capacitors** to handle the current demand **at peak times.** 
 ---
 ## 9. Reproducibility and Future Work
 We aim to make our robot easy to reproduce.  
@@ -232,7 +391,7 @@ Future improvements:
  - **Weight:** 727g
  - **Maximum speed:** 0.5m/s
  - **Driving system:** Rear-wheel drive (RWD)
- - **Steering Torque:** 24Ncm
+ - **Steering Torque:** 20.6Ncm
 
 ---
 ## Conclusion

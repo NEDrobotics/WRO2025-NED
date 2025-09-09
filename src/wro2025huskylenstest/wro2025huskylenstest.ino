@@ -1,5 +1,5 @@
 #include <SoftwareSerial.h>
-SoftwareSerial huskylens(2, 3); // RX, TX
+#define huskylens Serial2 // RX, TX
 
 void setup() {
   Serial.begin(115200);
@@ -17,43 +17,39 @@ void loop() {
   sendRequestBlocks();
   delay(50);
 
-  while (huskylens.available()) {
-    if (huskylens.read() == 0x55) {
-      if (huskylens.read() == 0xAA) {
-        byte address = huskylens.read();
-        byte length = huskylens.read();
-        byte cmd = huskylens.read();
+  while (huskylens.available() >= 5) { // header + at least cmd
+    if (huskylens.peek() != 0x55) { huskylens.read(); continue; }
+    huskylens.read(); // eat 0x55
+    if (huskylens.read() != 0xAA) continue;
 
-        if (cmd == 0x2A && length == 0x0A) {  // Return block
-          byte data[10];
-          for (int i = 0; i < 10; i++) {
-            data[i] = huskylens.read();
-          }
+    byte address = huskylens.read();
+    byte length = huskylens.read();
+    byte cmd = huskylens.read();
 
-          // Read fields from data
-          int x = data[0] | (data[1] << 8);
-          int y = data[2] | (data[3] << 8);
-          int w = data[4] | (data[5] << 8);
-          int h = data[6] | (data[7] << 8);
-          int id = data[8] | (data[9] << 8);
+    if (cmd == 0x2A && length == 0x0A && huskylens.available() >= 11) {
+      byte data[10];
+      for (int i = 0; i < 10; i++) data[i] = huskylens.read();
+      byte checksum = huskylens.read(); // consume checksum
 
-          Serial.print("Detected ID ");
-          Serial.print(id);
-          Serial.print(" at (");
-          Serial.print(x);
-          Serial.print(", ");
-          Serial.print(y);
-          Serial.print("), size: ");
-          Serial.print(w);
-          Serial.print("x");
-          Serial.println(h);
-        } else {
-          // Skip other frame types or garbage
-          for (int i = 0; i < length + 1; i++) huskylens.read();  // +1 = checksum
-        }
-      }
+      uint16_t x  = data[0] | (data[1] << 8);
+      uint16_t y  = data[2] | (data[3] << 8);
+      uint16_t w  = data[4] | (data[5] << 8);
+      uint16_t h  = data[6] | (data[7] << 8);
+      uint16_t id = data[8] | (data[9] << 8);
+
+      Serial.print("Detected ID ");
+      Serial.print(id);
+      Serial.print(" at (");
+      Serial.print(x);
+      Serial.print(", ");
+      Serial.print(y);
+      Serial.print("), size: ");
+      Serial.print(w);
+      Serial.print("x");
+      Serial.println(h);
+    } else {
+      // skip frame if not block
+      for (int i = 0; i < length + 1 && huskylens.available(); i++) huskylens.read();
     }
   }
-  //Serial.println("data");
-  //delay(30);
 }

@@ -1,9 +1,9 @@
-# NEDrobotics – WRO Future Engineers 2025
+# NEDrobotics 🇦🇿 – WRO Future Engineers 2025
 
 This repository documents the work of **Team NEDrobotics** for the **World Robot Olympiad (WRO) 2025 Future Engineers** category.  
 Our team consists of three members:
 
-- Nicat Vəliyev  
+- Nicat Vəliyev
 - Elnur Məmmədov  
 - Davud Məmmədov 
 
@@ -31,26 +31,43 @@ The goal is to make our work **clear, reproducible, and useful for other teams.*
 
 ---
 
-## Contents
-1. Project Overview  
-2. Hardware and Chassis Design  
-3. Electronics and Components  
-   - Power Management  
-   - Sensors and Perception  
-   - Actuators and Motor  
-4. Wiring and Integration
-5. Software and Control Architecture  
-   - Arduino Code (Low-Level Control)  
-   - Vision and AI Processing  
-   - Obstacle and Race Management  
-6. Bill of Materials 
-7. Photos and Media  
-8. Changes and Improvements  
-9. Reproducibility and Future Work  
-
+## 📋 Contents
+- 👀 [Project Overview](#project-overview)  
+- 🏎️ [Hardware and Chassis Design](#hardware)  
+   - 🔧 [3D Print The Parts](#3dparts)
+- ⚡ [Electronics and Components](#electronics)  
+   - 🔋 [Li-ion Battery and Li-Po Battery](#li-ion-and-li-po)
+   - 🖥️ [Arduino Mega 2560](#arduinomega2560)
+   - 👁️ [HC-SR04 Ultrasonic Sensors](#hc-sr04)
+   - ⚙️ [L298N Driver and LM2596 Regulators](#l298n-and-lm2596)
+   - 🛞 [Lego Wheels](#wheels)
+   - 📷 [HuskyLens Pro](#huskylens)
+   - 🔄 [MG90 Servos and DC Motor](#servos-and-motor)
+   - ⚙️ [Lego Differential](#differential)
+- 🛠️ [Wiring and Integration](#wiringandintegration)
+- 👨‍💻 [Software and Control Architecture](#software)  
+   - 🖥️ [Arduino Code (Low-Level Control)](#arduino)  
+   - 📷 [Vision and AI Processing](#vision)  
+   - 🏎️ [Obstacle and Race Management](#obstacle)  
+   - 🧠 [The robot's operating logic and code sequence](#logic)
+   - ⚙️ [Pseudo code](#pseudo)
+ - 💵 [Bill of Materials](#billofmaterials)
+   - 📦 [Component Costs](#components)
+   - 🖨️ [3D Printing Cost](#printingcost)
+   - 🔩 [Other Materials (Screws, Nuts, Jumpers, Heat shrinks)](#othermaterials)
+   - 💵 [Total Costs](#totalcosts)
+ - 📷 [Photos and Media](#media)
+   - 🏁 [The robot's mission rounds](#mission)
+   - 🖼️ [Photos of the robot](#photosofrobot)
+   - 📝 [The robot's electronic schematic](#schematic)
+   - 🖼️ [Photos of the team](#photosofteam)
+ - 🛠️ [Changes and Improvements](#changes)  
+ - 🔮 [Reproducibility and Future Work](#future)
+ - 📏 [Techinal Specifications](#techinal)
+ - 📑 [Conclusion](#conclusion)
 ---
 
-## 1. Project Overview
+## 👀 Project Overview <a id="project-overview"></a>
 Team NEDrobotics joined the WRO Future Engineers challenge with the goal of creating a reliable and intelligent self-driving robot.  
 The competition requires designing a car that can:
 
@@ -64,40 +81,92 @@ We combined **3D-printed parts, 12V DC motor, and servo-based steering** to crea
 
 ---
 
-## 2. Hardware and Chassis Design
-- **Chassis:** Built with 3D-printed parts for structure and flexibility  
-- **Custom 3D Parts:** Hold electronics, motor, and sensors in place  
-- **Motor:** One 12V DC motor for precise speed and torque control
-- **Drive train:** Differential drive and steering system with LEGO parts
-- **Steering:** One MG90 180° servo motor with Lego gears
-- **Stability:** Low center of gravity increases balance during turns  
+## 🏎️ Hardware and Chassis Design <a id="hardware"></a>
+- **🔧 Chassis:** Built with 3D-printed parts for structure and flexibility  
+- **🔧 Custom 3D Parts:** Hold electronics, motor, and sensors in place  
+- **🔧 Motor:** One 12V DC motor for precise speed and torque control
+- **🔧 Drive train:** Differential drive and steering system with LEGO parts
+- **🔧 Steering:** One MG90 180° servo motor with Lego gears
+- **🔧 Stability:** Low center of gravity increases balance during turns  
+
+| <img src="other/3dchassis.jpg" alt="3dchassis" width="636" height="304"> | Details |
+| ------------------------------------------------------------------------ | ------- |
+|**Dimensions:** 100x266mm |**Filament Type:** PLA |
 
 The final build is **strong, lightweight, reliable, and modular**.
 
 ---
 
-## 3. Electronics and Components
+## ⚡ Electronics and Components <a id="electronics"></a>
 
-### 3.1 Power Management
-- **2S Li-ion 18650 Battery (7.4V):** Main power source  
-- **LM2596 Converters (x3):** 5V for logic, servos, sensors
-- **XL6009 Step up boost converter (x1):** 12v for motor
+### 🔋 Li-ion Battery and Li-Po Battery <a id="li-ion-and-li-po"></a>
 
- Provides stable power for each module  
-
-### 3.2 Sensors and Perception
-- **HuskyLens Pro AI Camera (x1):** Color recognition  
-- **Ultrasonic Sensors (x3):** Distance detection  
-
-### 3.3 Actuators and Motors
-
-- **12V DC Motor (x1):** Drive system  
-- **Servo Motor MG90 (x1):** Steering  
-- **L298N Motor Driver (x1):** Motor interface with Arduino  
-
+| <img src="other/li-ion.jpg" alt="li-ion" width="300" height="300"> | <img src="other/li-po.jpg" alt="li-po" width="300" height="300"> |
+| ----------------------------- | -------------- |
+|**Model:** Li-ion 18650 Battery |**Model:** 2s Li-Po Tattu Battery |
+|**Voltage:** 3.7v |**Voltage:** 7.4v |
+|**Weight:** 45g  |**Weight:** 31g |
+|**Discharge Rate:** 2C |**Discharge Rate:** 95C |
+|**Functions:** Power the motors/leds |**Functions:** Power the modules
+|**Capacity:** 2600mAh |**Capacity:** 500mAh |
+---
+### 🖥️ Arduino Mega 2560 <a id="arduinomega2560"> </a>
+| <img src="other/arduinomega.jpg" alt="arduino" width="300" height="300"> | Details |
+| ------------------------------------------------------------------ | ------- |
+|**Microcontroller:** ATmega2560 |**SRAM:** 8KB |
+|**Working Voltage:** 5V |**EEPROM:** 4KB |
+|**Input Voltage:** 7-12V (recomd.) |**Memory:** 256KB |
+|**Digital I/O Pins:** 54 |**Clock speed:** 16 MHz |
+|**PWM Pins:** 15 |**Weight:** 37g |
+---
+### 👁️ HC-SR04 Ultrasonic Sensors <a id="hc-sr04"></a>
+| <img src="other/ultrasonic.jpg" alt="hc-sr04" width="300" height="300"> | Details |
+| ---------------------------------------------------------------------- | ------- |
+|**Model:** HC-SR04 |**Min range:** 2cm |
+|**Working Voltage:** 5V |**Max range:** 4m |
+|**Working Frequency:** 40Hz |**Measuring Angle:** 15 degree | 
+|**Weight:** 8.5g |**Dimensions:** 45x20x15mm |
+---
+### ⚙️ L298N Driver and LM2596 Regulators <a id="l298n-and-lm2596"> </a>
+| <img src="other/l298n.jpg" alt="l298n" width="300" height="300"> | <img src="other/lm2596.jpg" alt="lm2596" width="300" height="300"> |
+| ------------------------------------------------------------------------ | ------- |
+|**Driver Model:** L298N 2A |**Model:** LM2596 Buck Converter |
+|**Driver Chip:** Double H Bridge L298N |**Input Voltage:** 4V-35V |
+|**Logic Voltage:** 5V |**Output Voltage:** 1.23V-30V |
+|**Driver Voltage:** 5-35V |**Output Current:** 3A (max) |
+|**Weight:** 25g |**Weight:** 11g |
+---
+### 🛞 Lego Wheels
+| <img src="other/legowheels.jpg" alt="wheels" width="300" height="300"> | Details |
+| ---------------------------------------------------------------------- | ------- |
+|**Part Number:** 56145c01 |**Model Number:** 11218 |
+|**Size:** 43.2x22mm |**Rim Size:** 20.66mm (0.79inches) |
+|**Weight:** 59g |**Wheel Size:** 22mm |
+---
+### 📷 HuskyLens Pro <a id="huskylens"> </a>
+| <img src="other/legowheels.jpg" alt="wheels" width="300" height="300"> | Details |
+| ---------------------------------------------------------------------- | ------- |
+|**SKU:** SEN0336 |**Camera:** OV5640 5.0MegaPixel |
+|**Functions:** Face Recognition, Object Tracking, Object Recognition, Line Tracking, Color Recognition, Tag Recognition, Object Classification, QR Recognition, Barcode recognition | **Weight:** 40g |
+---
+### 🔄 MG90 Servos and DC Motor <a id="servos-and-motor"> </a>
+| <img src="other/mg90.jpg" alt="servo" width="300" height="300"> | <img src="other/dc.jpg" alt="dc" width="300" height="300"> |
+| -------------------------------- | ----------------------------------- |
+|**Operating Voltage:** 4.8V to 6V (Typically 5V) |**Motor:** RS-360 |
+|**Gear Type:** Metal |**Operating Voltage:** 6V – 12V |
+|**Stall Torque:** 1.8kg/cm (4.8V) |**Body diameter:** ~24mm |
+|**Max Stall Torque:** 2.2kg/cm (6V) |**Shaft diameter:**  ~2.0-2.3mm
+|**Weight:** 13.4g |**Weight:** 55g (appr.) |
+|**Rotation:** 0°-180° |  |
+---
+### ⚙️ Lego Differential 
+| <img src="other/differential.jpg" alt="differential" width="300" height="300"> | Details |
+| ------------------------------------------------------------------------------ | ------- |
+|**Part Number:** 62821 |**Gear Type:** 28-tooth bevel gear |
+|**Weight:** 2.8g (appr.) |**Color:** Dark Bluish Gray |
 ---
 
-## 4. Wiring and Integration
+## 🛠️ Wiring and Integration <a id="wiringandintegration"></a>
 - **Ultrasonic sensors → digital pins**  
 - **Motor → L298N with PWM pins**  
 - **Servo → dedicated PWM pins**  
@@ -105,25 +174,28 @@ The final build is **strong, lightweight, reliable, and modular**.
 ###### ↓ Modules added to named regulators ↓
 - **Ultrasonic sensors → LM2596 - A** 
 - **Servo →  LM2596 - B**
-- **HuskyLens Pro → LM2596 - C**  
+- **HuskyLens Pro → LM2596 - C**
 ###### ↑ Modules added to named regulators ↑
+- **XL6009 power output regulated to 12v → L298N battery input**
+- **2S 18650 li-ion → XL6009 power input**
+
 Power distributed via **LM2596 regulators** for stable voltage.
 
 ---
 
-## 5. Software and Control Architecture
+## 👨‍💻 Software and Control Architecture <a id="software"></a>
 
-### 5.1 Arduino Code (Low-Level Control)
+### 🖥️ Arduino Code (Low-Level Control) <a id="arduino"></a>
 - Runs on Arduino Mega  
 - Handles motor control, servo steering, ultrasonic readings 
 - Uses PWM and smooth acceleration  
 
-### 5.2 Vision and AI Processing
+### 📷 Vision and AI Processing <a id="vision"></a>
 - Managed by HuskyLens Pro  
 - Detects colors of the traffic signs  
 - Sends data to Arduino for decisions  
 
-### 5.3 Obstacle and Race Management
+### 🏎️ Obstacle and Race Management <a id="obstacle"></a>
 - State-machine logic with behaviors:  
   - START  
   - DETERMINE DIRECTION
@@ -135,7 +207,7 @@ Power distributed via **LM2596 regulators** for stable voltage.
   - PARK
   - FINISH  
 
-### 5.4 The robot's operating logic and code sequence
+### 🧠 The robot's operating logic and code sequence <a id="logic"></a>
  - **HuskyLens**
    - The Huskylens camera sends the colors of traffic signs it sees in the distance to the Arduino as raw data and colorID, and the Arduino processes them, enabling the robot to maneuver right or left.
  - **Ultrasonic sensors**
@@ -152,7 +224,7 @@ Power distributed via **LM2596 regulators** for stable voltage.
 
  - **Conventors and capacitors**
    - The LM2596 regulators reduce the voltage of the power coming from the battery and send it to the sensors/husklens and other components. *The capacitors supply the sudden current surge.*
-### 5.5 Pseudo code
+### ⚙️ Pseudo code <a id="pseudo"></a>
 <details> <summary>Click to see!</summary>
 
 ```text
@@ -308,8 +380,9 @@ FUNCTION runProgram():
 </details>
 
 
-## 6. Bill of Materials
+## 💵 Bill of Materials <a id="billofmaterials"> </a>
 
+### 📦 Component Costs <a id="components"></a>
 | Amount | Component | Notes | Prices |
 |--------|-----------|-------|--------|
 | 1 | [Arduino Mega 2560](other/arduinomega.jpg) | Main controller | 18.2₼ (10.7$) |
@@ -326,17 +399,38 @@ FUNCTION runProgram():
 | 3 | [LEDs](other/light.jpg) | Misc | Free |
 | 1 | [16v 4700µ Capacitor](other/16v.jpg) | Misc | 3₼ (1.76$) |
 | 2 | [25v 4700µ Capacitors](other/25v.jpg) | Misc | 3.5₼ (2.05$) |
-| Various | Wires, connectors, 3D-printed parts, Lego chassis | Assembly | Free |
+| - | - | - | - |
+| **Total Component Cost:** | - | - | **80.5₼ (47.3$)**
 
-## **Total:** --- **84₼ (49.4$)**
+### 🖨️ 3D Printing Cost <a id="printingcost"></a>
+| Amount | Name | Notes | Prices |
+| ------ | ---- | ----- | ------ |
+| 1000g | 1.75mm PLA Filament | Material | 44.2₼ (26$) |
+| **Total Printing Cost:** | - | - | **44.2₼ (26$)** |
+
+### 🔩 Other Materials (Screws, Nuts, Jumpers, Heat shrink) <a id="othermaterials"></a>
+| Amount | Name | Notes | Prices |
+| ------ | ---- | ----- | ------ |
+| 120 | Jumpers | Cables | 3₼ (1.76$) |
+| 8 | Nuts | Fasteners | Free |
+| 2meter | Heat Shrinks | Fasteners | Free |
+| **Total Other Materials Cost:** | - | - | **3₼ (1.76$)** |
+
+### 💵 Total Costs <a id="totalcosts"></a>
+| Category | Notes | Prices |
+| ------ | ---- | ----- |
+| Components | - | 80.5₼ (47.3$) |
+| 3D Printing | - | 44.2₼ (26$) |
+| Other Materials | - | 3₼ (1.76$) |
+|**Total Cost:** | - | **127.7₼ (74.7$)** |
 
 ##### We paid 70₼ (41.1$) for the map, and we already had the boards for the walls, which we painted with black spray paint.
 ###### Items marked with “Free*” are parts that we had in previous races.
-
+##### Engineering is not about creating something with unlimited resources, it's about creating wonders with the resources you have!
 ---
 
-## 7. Photos and Media
-### The robot's mission rounds *( /videos )*
+## 📷 Photos and Media <a id="media"></a>
+### 🏁 The robot's mission rounds *( /videos )* <a id="mission"> </a>
 <p> 
   <a href="https://youtube.com/shorts/DDyiXAjG3tE?feature=share" target="_blank">
     <img src="https://img.shields.io/badge/Open%20Challenge-ff0000?logo=youtube&style=for-the-badge" />
@@ -347,7 +441,7 @@ FUNCTION runProgram():
   </a>
 </p>
 
-### Photos of the robot *( /v-photos )*
+### 🖼️ Photos of the robot *( /v-photos )* <a id="photosofrobot"></a>
 
 ![The **top** of the robot](v-photos/top.jpeg)  
 ![The **bottom** of the robot](v-photos/bottom.jpeg)
@@ -356,45 +450,53 @@ FUNCTION runProgram():
 ![The **front** of the robot](v-photos/front.jpeg)
 ![The **back** of the robot](v-photos/back.jpeg)   
 
-### The robot's electronic schematic  *( /schemes )*
+### 📝 The robot's electronic schematic  *( /schemes )* <a id="schematic"></a>
 ![The **scheme** of the robot](schemes/scheme.png) 
 
-### Photos of the team *( /t-photos )*
+### 🖼️ Photos of the team *( /t-photos )* <a id="photosofteam"></a>
 ![Team photo](t-photos/official.jpeg) 
 ![Funny photo](t-photos/funny.jpeg) 
 
 ---
 
-## 8. Changes and Improvements
+## 🛠️ Changes and Improvements <a id="changes"></a>
 During development we made important modifications:  
-- Since the color sensor did not work very well and **the values it provided could not be very accurate**, we decided to remove the **TCS3200** from the robot. 
-- Although the distance between the robot and the wall was small, the ultrasonic sensors perceived the distance as **far** because they were facing the wall **at an angle** slightly below it. This caused the robot to approach the wall **even closer**, leading to errors. While searching for a practical solution in the robot's driving algorithm, we added various automation algorithms such as the **PID** driving algorithm. Finally, to further improve performance, we decided to place the ultrasonic sensors **on the front of the robot.**
-- We updated our HuskyLens camera with *HUSKYLENSWithModelV0.5.1bNorm* so it can better distinguish object colors and operate with fewer errors. The newer version slightly improved color recognition performance on the robot.
-- We made the robot **rear-wheel drive** to **minimize the friction force** on the wheels and make it more **stable** and **powerful**. 
-- Previously, there were no LEDs in front of the robot. Later, through experience, we realized that **it couldn't fully identify the colors of traffic signs**, so we placed three powerful **LEDs** on the front.
-- Initially, we used **a single power source for the entire system**, but this later caused a number of problems. The reason for this was that the motor drew a sudden surge of current during startup, causing **voltage sag**. As a result, the Arduino and other modules would shut down and restart. As a solution, we **separated the power sources** for the motors (drive and servo motors). We also added **three capacitors** to handle the current demand **at peak times.** 
+
+- ✔  Since the color sensor did not work very well and **the values it provided could not be very accurate**, we decided to remove the **TCS3200** from the robot. 
+
+- ✔  Although the distance between the robot and the wall was small, the ultrasonic sensors perceived the distance as **far** because they were facing the wall **at an angle** slightly below it. This caused the robot to approach the wall **even closer**, leading to errors. While searching for a practical solution in the robot's driving algorithm, we added various automation algorithms such as the **PID** driving algorithm. Finally, to further improve performance, we decided to place the ultrasonic sensors **on the front of the robot.**
+
+- ✔   We updated our HuskyLens camera with *HUSKYLENSWithModelV0.5.1bNorm* so it can better distinguish object colors and operate with fewer errors. The newer version slightly improved color recognition performance on the robot.
+
+- ✔   We made the robot **rear-wheel drive** to **minimize the friction force** on the wheels and make it more **stable** and **powerful**. 
+
+- ✔   Previously, there were no LEDs in front of the robot. Later, through experience, we realized that **it couldn't fully identify the colors of traffic signs**, so we placed three powerful **LEDs** on the front.
+
+- ✔  Initially, we used **a single power source for the entire system**, but this later caused a number of problems. The reason for this was that the motor drew a sudden surge of current during startup, causing **voltage sag**. As a result, the Arduino and other modules would shut down and restart. As a solution, we **separated the power sources** for the motors (drive and servo motors). We also added **three capacitors** to handle the current demand **at peak times.** 
 ---
-## 9. Reproducibility and Future Work
+## 🔮 Reproducibility and Future Work <a id="future"></a>
 We aim to make our robot easy to reproduce.  
 This repository includes source code, wiring diagrams, and 3D files.  
 
 Future improvements:  
-- Upgrade motor for higher speed  
-- Use more advanced **AI camera system**
-- Improve overall performance quality
-- Use more **precise** sensors
-- **Shortening** the robot's sizes 
-- Use more **powerful** and more **efficient** batteries
+- ⏳ Upgrade motor for higher speed  
+- ⏳ Use more advanced **AI camera system**
+- ⏳ Improve overall performance quality
+- ⏳ Use more **precise** sensors
+- ⏳ **Shortening** the robot's sizes 
+- ⏳ Use more **powerful** and more **efficient** batteries
+
+###### The road goes to success is always under construction.
 ---
-## 10. Technical specifications
- - **Dimensions:** 275mm (L) x 160mm (W) x 200mm (H)
+## 📏 Technical specifications <a id="techinal"> </a>
+ - **Dimensions:** 275mm (L) x 168mm (W) x 200mm (H)
  - **Weight:** 727g
  - **Maximum speed:** 0.5m/s
  - **Driving system:** Rear-wheel drive (RWD)
  - **Steering Torque:** 20.6Ncm
 
 ---
-## Conclusion
+## 📑 Conclusion <a id="conclusion"></a>
 Team NEDrobotics’ project shows how teamwork, electronics, and coding can solve the WRO Future Engineers challenge.  
 We created a **reliable, modular, and efficient autonomous robot** with Arduino, HuskyLens, and Lego EV3.  
 This repository is a **complete guide** for anyone who wants to understand, rebuild, or improve our design.

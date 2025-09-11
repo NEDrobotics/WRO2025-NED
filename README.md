@@ -1,4 +1,4 @@
-# NEDrobotics 🇦🇿 – WRO Future Engineers 2025
+# NEDrobotics – WRO Future Engineers 2025
 
 This repository documents the work of **Team NEDrobotics** for the **World Robot Olympiad (WRO) 2025 Future Engineers** category.  
 Our team consists of three members:
@@ -144,7 +144,7 @@ The final build is **strong, lightweight, reliable, and modular**.
 |**Weight:** 59g |**Wheel Size:** 22mm |
 ---
 ### 📷 HuskyLens Pro <a id="huskylens"> </a>
-| <img src="other/legowheels.jpg" alt="wheels" width="300" height="300"> | Details |
+| <img src="other/huskylens.jpg" alt="wheels" width="300" height="300"> | Details |
 | ---------------------------------------------------------------------- | ------- |
 |**SKU:** SEN0336 |**Camera:** OV5640 5.0MegaPixel |
 |**Functions:** Face Recognition, Object Tracking, Object Recognition, Line Tracking, Color Recognition, Tag Recognition, Object Classification, QR Recognition, Barcode recognition | **Weight:** 40g |
@@ -214,7 +214,7 @@ Power distributed via **LM2596 regulators** for stable voltage.
    - The ultrasonic sensors on the right and left sides determine how far away the robot is from the wall and in which direction it should move. During the loop, if the robot is moving clockwise, it uses the data from the right sensor to orient itself; if it is moving counterclockwise, it uses the data from the left sensor. When it's time to turn, if the sensor suddenly detects a very large distance, it starts to turn, stops after turning, checks the distance to the adjacent wall, and then realigns itself to move to the next turning point. *The front sensor only checks the distance to the parking walls during parking time, enabling it to park in an orderly manner.*
 
  - **Motor driver**
-   - The L296N motor driver allows us to control the motor's speed and direction and adjust the brightness of the LEDs.
+   - The L298N motor driver allows us to control the motor's speed and direction and adjust the brightness of the LEDs.
 
  - **Button**
    - The button allows us to run the code.
@@ -387,7 +387,7 @@ FUNCTION runProgram():
 |--------|-----------|-------|--------|
 | 1 | [Arduino Mega 2560](other/arduinomega.jpg) | Main controller | 18.2₼ (10.7$) |
 | 4 | [LM2596 buck converters](other/lm2596.jpg) | Voltage regulation | 2.6₼ (1.52$) |
-| 1 | [L298N motor driver](other/l296n.jpg) | Motor control | 3.5₼ (2.05$) |
+| 1 | [L298N motor driver](other/l298n.jpg) | Motor control | 3.5₼ (2.05$) |
 | 1 | [12V DC Motor](other/dc.jpg) | Drive | Free |
 | 3 | [Ultrasonic sensors](other/ultrasonic.jpg) | Distance measurement | 8₼ (4.7$) |
 | 1 | [HuskyLens Pro AI camera](other/huskylens.jpg) | Vision | Free |

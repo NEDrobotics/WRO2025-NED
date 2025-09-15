@@ -116,18 +116,20 @@ The final build is **strong, lightweight, reliable, and modular**.
 | <img src="other/arduinomega.jpg" alt="arduino" width="300" height="300"> | Details |
 | ------------------------------------------------------------------ | ------- |
 |**Microcontroller:** ATmega2560 |**SRAM:** 8KB |
-|**Working Voltage:** 5V |**EEPROM:** 4KB |
+|**Operating Voltage:** 5V |**EEPROM:** 4KB |
 |**Input Voltage:** 7-12V (recomd.) |**Memory:** 256KB |
 |**Digital I/O Pins:** 54 |**Clock speed:** 16 MHz |
 |**PWM Pins:** 15 |**Weight:** 37g |
+|**Current Draw:** 50mA |**Dimensions:** 102x53x30mm|
 ---
 ### 👁️ HC-SR04 Ultrasonic Sensors <a id="hc-sr04"></a>
 | <img src="other/ultrasonic.jpg" alt="hc-sr04" width="300" height="300"> | Details |
 | ---------------------------------------------------------------------- | ------- |
 |**Model:** HC-SR04 |**Min range:** 2cm |
-|**Working Voltage:** 5V |**Max range:** 4m |
-|**Working Frequency:** 40Hz |**Measuring Angle:** 15 degree | 
+|**Operating Voltage:** 5V |**Max range:** 4m |
+|**Ultrasonic Frequency:** 40Hz |**Measuring Angle:** 15 degree | 
 |**Weight:** 8.5g |**Dimensions:** 45x20x15mm |
+|**Current Draw:** 15mA |**Accuracy:** 0.3cm (3mm) |
 ---
 ### ⚙️ L298N Driver and LM2596 Regulators <a id="l298n-and-lm2596"> </a>
 | <img src="other/l298n.jpg" alt="l298n" width="300" height="300"> | <img src="other/lm2596.jpg" alt="lm2596" width="300" height="300"> |
@@ -137,6 +139,7 @@ The final build is **strong, lightweight, reliable, and modular**.
 |**Logic Voltage:** 5V |**Output Voltage:** 1.23V-30V |
 |**Driver Voltage:** 5-35V |**Output Current:** 3A (max) |
 |**Weight:** 25g |**Weight:** 11g |
+|**Idle Current:** 36mA|**Idle Current:** 5mA
 ---
 ### 🛞 Lego Wheels
 | <img src="other/legowheels.jpg" alt="wheels" width="300" height="300"> | Details |
@@ -150,16 +153,19 @@ The final build is **strong, lightweight, reliable, and modular**.
 | ---------------------------------------------------------------------- | ------- |
 |**SKU:** SEN0336 |**Camera:** OV5640 5.0MegaPixel |
 |**Functions:** Face Recognition, Object Tracking, Object Recognition, Line Tracking, Color Recognition, Tag Recognition, Object Classification, QR Recognition, Barcode recognition | **Weight:** 40g |
+|**Current Draw:** 320mA @3.3V, 230mA @5.0V | **Dimensions:** 52x44.5mm |
 ---
 ### 🔄 MG90 Servos and DC Motor <a id="servos-and-motor"> </a>
 | <img src="other/mg90.jpg" alt="servo" width="300" height="300"> | <img src="other/dc.jpg" alt="dc" width="300" height="300"> |
 | -------------------------------- | ----------------------------------- |
-|**Operating Voltage:** 4.8V to 6V (Typically 5V) |**Motor:** RS-360 |
+|**Operating Voltage:** 4.8V to 6V (Typically 5V) |**Motor:** RS-280 |
 |**Gear Type:** Metal |**Operating Voltage:** 6V – 12V |
 |**Stall Torque:** 1.8kg/cm (4.8V) |**Body diameter:** ~24mm |
-|**Max Stall Torque:** 2.2kg/cm (6V) |**Shaft diameter:**  ~2.0-2.3mm
+|**Max Stall Torque:** 2.2kg/cm (6V) |**Shaft diameter:**  ~2.0mm
 |**Weight:** 13.4g |**Weight:** 55g (appr.) |
-|**Rotation:** 0°-180° |  |
+|**Rotation:** 0°-180° | **Torque:** 4.46mNm |
+|**Rated Current:** 250mA | **Rated Current:** 280mA |
+|**Stall Current:** 850mA | **Stall Current:** 1.5A |
 ---
 ### ⚙️ Lego Differential <a id="differential"></a>
 | <img src="other/differential.jpg" alt="differential" width="300" height="300"> | Details |
@@ -171,8 +177,7 @@ The final build is **strong, lightweight, reliable, and modular**.
 ## 🛠️ Wiring and Integration <a id="wiringandintegration"></a>
 ### 🔋 Power Management <a id="powermanagement"> </a>
 - **2S 18650 (Main) → XL6009 Voltage regulator (12V) & (LM2596 - B) → L298N Driver → DC Motor & LEDs**
-- **2S Li-Po (Other) → (LM2596 - A) & (LM2596 - C) & (Arduino)**  
-#
+- **2S Li-Po (Other) → (LM2596 - A) & (LM2596 - C) & (Arduino)**
 - **LM2596 - A → Ultrasonic Sensors**
 - **LM2596 - B → Servo**
 - **LM2596 - C → HuskyLens Pro**
@@ -224,10 +229,10 @@ The final build is **strong, lightweight, reliable, and modular**.
   - FINISH  
 
 ### 🧠 The robot's operating logic and code sequence <a id="logic"></a>
+ - **Ultrasonic sensors**
+   - The ultrasonic sensors on the right and left sides determine how far away the robot is from the wall and in which way it should move. During the loop, if the robot is moving clockwise, it uses the data from the left sensor to orient itself (PID wall following); if it is moving counterclockwise, it uses the data from the right sensor. When it's time to turn, if the front sensor data is smaller than given threshold value, it checks both sides to learn which direction it should go then makes turn to that way, then realigns itself with **PID wall following algorithm** to move to the next turning point. *The front sensor is also checks the distance to the parking walls during parking time, enabling it to park in an orderly manner.*
  - **HuskyLens**
    - The Huskylens camera sends the colors of traffic signs it sees in the distance to the Arduino as raw data and colorID, and the Arduino processes them, enabling the robot to maneuver right or left.
- - **Ultrasonic sensors**
-   - The ultrasonic sensors on the right and left sides determine how far away the robot is from the wall and in which direction it should move. During the loop, if the robot is moving clockwise, it uses the data from the right sensor to orient itself; if it is moving counterclockwise, it uses the data from the left sensor. When it's time to turn, if the sensor suddenly detects a very large distance, it starts to turn, stops after turning, checks the distance to the adjacent wall, and then realigns itself to move to the next turning point. *The front sensor only checks the distance to the parking walls during parking time, enabling it to park in an orderly manner.*
 
  - **Motor driver**
    - The L298N motor driver allows us to control the motor's speed and direction and adjust the brightness of the LEDs.
@@ -404,15 +409,15 @@ FUNCTION runProgram():
 | 1 | [Arduino Mega 2560](other/arduinomega.jpg) | Main controller | 18.2₼ (10.7$) |
 | 4 | [LM2596 buck converters](other/lm2596.jpg) | Voltage regulation | 2.6₼ (1.52$) |
 | 1 | [L298N motor driver](other/l298n.jpg) | Motor control | 3.5₼ (2.05$) |
-| 1 | [12V DC Motor](other/dc.jpg) | Drive | Free |
+| 1 | [12V DC Motor](other/dc.jpg) | Drive | Free\* |
 | 3 | [Ultrasonic sensors](other/ultrasonic.jpg) | Distance measurement | 8₼ (4.7$) |
-| 1 | [HuskyLens Pro AI camera](other/huskylens.jpg) | Vision | Free |
+| 1 | [HuskyLens Pro AI camera](other/huskylens.jpg) | Vision | Free\* |
 | 1 | [MG90 servo motor (180°)](other/mg90.jpg) | Steering | 4.5₼ (2.64$) |
 | 4 | [Li-ion 18650 Battery](other/li-ion.jpg) | Power source | 19₼ (11.17$) |
-| 1 | [2S Li-Po Tattu 500mAh](other/li-po.jpg) | Power source | Free |
+| 1 | [2S Li-Po Tattu 500mAh](other/li-po.jpg) | Power source | Free\* |
 | 1 | [2x18650 Battery Holder](other/holder.jpg) | Misc | 4.3₼ (2.52$) |
 | 1 | [Lithium Batter charger](other/charger.jpg) | Misc | 13.9₼ (8.17$) |
-| 3 | [LEDs](other/light.jpg) | Misc | Free |
+| 3 | [LEDs](other/light.jpg) | Misc | Free\* |
 | 1 | [16v 4700µ Capacitor](other/16v.jpg) | Misc | 3₼ (1.76$) |
 | 2 | [25v 4700µ Capacitors](other/25v.jpg) | Misc | 3.5₼ (2.05$) |
 | - | - | - | - |
@@ -428,8 +433,8 @@ FUNCTION runProgram():
 | Amount | Name | Notes | Prices |
 | ------ | ---- | ----- | ------ |
 | 120 | Jumpers | Cables | 3₼ (1.76$) |
-| 8 | Nuts | Fasteners | Free |
-| 2meter | Heat Shrinks | Fasteners | Free |
+| 8 | Nuts | Fasteners | Free\* |
+| 2meter | Heat Shrinks | Fasteners | Free\* |
 | **Total Other Materials Cost:** | - | - | **3₼ (1.76$)** |
 
 ### 💵 Total Costs <a id="totalcosts"></a>
@@ -441,7 +446,7 @@ FUNCTION runProgram():
 |**Total Cost:** | - | **127.7₼ (74.7$)** |
 
 ##### We paid 70₼ (41.1$) for the map, and we already had the boards for the walls, which we painted with black spray paint.
-###### Items marked with “Free*” are parts that we had in previous races.
+###### \*Items marked with “Free” are parts that we had in previous races.
 ##### Engineering is not about creating something with unlimited resources, it's about creating wonders with the resources you have!
 ---
 

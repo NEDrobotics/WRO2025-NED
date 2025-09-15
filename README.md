@@ -3,9 +3,9 @@
 This repository documents the work of **Team NEDrobotics** for the **World Robot Olympiad (WRO) 2025 Future Engineers** category.  
 Our team consists of three members:
 
-- Nicat Vəliyev
-- Elnur Məmmədov  
-- Davud Məmmədov 
+- [Nicat Vəliyev](https://www.linkedin.com/in/nicat-vəliyev-2816b3269)
+- [Elnur Məmmədov](https://www.linkedin.com/in/elnurmammadovv)
+- [Davud Məmmədov](https://www.linkedin.com/in/davud-məmmədov-383a292a7)
 
 We designed, built, and programmed an autonomous vehicle capable of competing in the WRO Future Engineers challenges.  
 This README explains our hardware, electronics, software modules, and the process to build and upload code to our robot.  
@@ -21,7 +21,7 @@ The goal is to make our work **clear, reproducible, and useful for other teams.*
   </a>
 
   <a href="https://www.tinkercad.com" target="_blank">
-    <img src="https://img.shields.io/badge/For%203D DESIGNS-02a4fb?logo=arduino&style=for-the-badge" />
+    <img src="https://img.shields.io/badge/For%203D DESIGNS-02a4fb?logo=tinkercad&style=for-the-badge" />
   </a>
 
   <a href="https://www.youtube.com/@NEDRobotics" target="_blank">
@@ -45,6 +45,8 @@ The goal is to make our work **clear, reproducible, and useful for other teams.*
    - 🔄 [MG90 Servos and DC Motor](#servos-and-motor)
    - ⚙️ [Lego Differential](#differential)
 - 🛠️ [Wiring and Integration](#wiringandintegration)
+   - 🔋 [Power Management](#powermanagement)
+   - 🤖 [Arduino Pins](#arduinopins)
 - 👨‍💻 [Software and Control Architecture](#software)  
    - 🖥️ [Arduino Code (Low-Level Control)](#arduino)  
    - 📷 [Vision and AI Processing](#vision)  
@@ -159,7 +161,7 @@ The final build is **strong, lightweight, reliable, and modular**.
 |**Weight:** 13.4g |**Weight:** 55g (appr.) |
 |**Rotation:** 0°-180° |  |
 ---
-### ⚙️ Lego Differential 
+### ⚙️ Lego Differential <a id="differential"></a>
 | <img src="other/differential.jpg" alt="differential" width="300" height="300"> | Details |
 | ------------------------------------------------------------------------------ | ------- |
 |**Part Number:** 62821 |**Gear Type:** 28-tooth bevel gear |
@@ -167,20 +169,34 @@ The final build is **strong, lightweight, reliable, and modular**.
 ---
 
 ## 🛠️ Wiring and Integration <a id="wiringandintegration"></a>
-- **Ultrasonic sensors → digital pins**  
-- **Motor → L298N with PWM pins**  
-- **Servo → dedicated PWM pins**  
-- **HuskyLens Pro → Serial/I2C** 
-###### ↓ Modules added to named regulators ↓
-- **Ultrasonic sensors → LM2596 - A** 
-- **Servo →  LM2596 - B**
-- **HuskyLens Pro → LM2596 - C**
-###### ↑ Modules added to named regulators ↑
-- **XL6009 power output regulated to 12v → L298N battery input**
-- **2S 18650 li-ion → XL6009 power input**
-
-Power distributed via **LM2596 regulators** for stable voltage.
-
+### 🔋 Power Management <a id="powermanagement"> </a>
+- **2S 18650 (Main) → XL6009 Voltage regulator (12V) & (LM2596 - B) → L298N Driver → DC Motor & LEDs**
+- **2S Li-Po (Other) → (LM2596 - A) & (LM2596 - C) & (Arduino)**  
+#
+- **LM2596 - A → Ultrasonic Sensors**
+- **LM2596 - B → Servo**
+- **LM2596 - C → HuskyLens Pro**
+### 🤖 Arduino Pins <a id="arduinopins"></a>
+ - **D8~ → 🛞 Motor Driver ENA**
+ - **D9~ → 🛞 Motor Driver ENB** 
+ - **D22 → 🛞 Motor Driver IN1** 
+ - **D23 → 🛞 Motor Driver IN2** 
+ - **D24 → 🛞 Motor Driver IN3** 
+ - **D25 → 🛞 Motor Driver IN4** 
+ - **D11~ → 🔄 Servo PWM**
+ - **D16 → 📷 HuskyLens RX Pin**
+ - **D17 → 📷 HuskyLens TX Pin**
+ - **D44 → ⬅️ Left Ultrasonic Echo Pin**
+ - **D45 → ⬅️ Left Ultrasonic Trig Pin**
+ - **D46 → ➡️ Right Ultrasonic Echo Pin**
+ - **D47 → ➡️ Right Ultrasonic Trig Pin**
+ - **D48 → ⬆️ Front Ultrasonic Echo Pin**
+ - **D49 → ⬆️ Front Ultrasonic Trig Pin**
+ - **D53 → 🚩 Start Button**
+ - **🚩 Start Button → GND**
+###### ( ~ ) = PWM Pins
+###### ( D ) = Digital Pins
+ 
 ---
 
 ## 👨‍💻 Software and Control Architecture <a id="software"></a>
@@ -227,7 +243,7 @@ Power distributed via **LM2596 regulators** for stable voltage.
 ### ⚙️ Pseudo code <a id="pseudo"></a>
 <details> <summary>Click to see!</summary>
 
-```text
+```cpp
 
 # --- Constants / Globals ---
 DEFINE pins, servo mids, motor pins, button pin

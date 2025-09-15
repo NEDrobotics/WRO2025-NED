@@ -2,7 +2,6 @@
 #include <math.h>
 
 // ---------------- HW & pins ----------------
-Servo servo1;
 Servo servo2;
 
 // Left ultrasonic
@@ -15,7 +14,6 @@ const int ECHO_RIGHT_PIN = 46;
 const int TRIG_FRONT_PIN = 49;
 const int ECHO_FRONT_PIN = 48;
 
-const int S1PIN = 10;
 const int S2PIN = 11;
 const int buttonPin = 53;
 int buttonState = 0;
@@ -29,15 +27,14 @@ const int IN2_2 = 25;
 const int ENA_2  = 9;
 
 // servo mid positions
-const int s1mid = 96;
 const int s2mid = 115;
 
 // ---------------- control params ----------------
 // wall-following target (left or right depending on active mode)
-const int targetdistance = 15; // cm
+const int targetdistance = 20; // cm
 
 // PID params (tune)
-float Kp = 4.5;
+float Kp = 2.5;
 float Ki = 0.0;
 float Kd = 0.6;
 
@@ -82,7 +79,6 @@ const unsigned long IGNORE_AFTER_TURN_MS = 1200UL;
 unsigned long ignoreUntil = 0;
 
 // misc
-int lastS1pos = s1mid;
 int lastS2pos = s2mid;
 int turnCount = 0;
 
@@ -166,23 +162,18 @@ void setMotorsForward(bool forward, int speed) {
 // ------------------------------------------------------------------
 
 void setSteerLeftMax() {
-  int leftPose  = constrain(s1mid + TURN_DEGREE, 0, 180);
   int rightPose = constrain(s2mid - TURN_DEGREE, 0, 180);
-  servo1.write(leftPose);
   servo2.write(rightPose);
   lastServoUpdate = millis();
 }
 
 void setSteerRightMax() {
-  int leftPose  = constrain(s1mid - TURN_DEGREE, 0, 180);
   int rightPose = constrain(s2mid + TURN_DEGREE, 0, 180);
-  servo1.write(leftPose);
   servo2.write(rightPose);
   lastServoUpdate = millis();
 }
 
 void centerSteering() {
-  servo1.write(s1mid);
   servo2.write(s2mid);
   lastServoUpdate = millis();
   delay(10);
@@ -246,7 +237,6 @@ void rotateUntilSideUnder(int side, float stopCm = SIDE_TURN_STOP_CM, unsigned l
 // Drive straight with servos centered and motor pwm
 void driveForwardStraight(int motorPwm) {
   if ((millis() - lastServoUpdate) >= servoUpdateInterval) {
-    servo1.write(s1mid);
     servo2.write(s2mid);
     lastServoUpdate = millis();
   }
@@ -281,22 +271,15 @@ void writeServosFromOutput(float output) {
   unsigned long now = millis();
   if ((now - lastServoUpdate) < servoUpdateInterval) return;
 
-  int s1pos = (int)roundf((float)s1mid - output);
   int s2pos = (int)roundf((float)s2mid + output);
-
-  s1pos = constrain(s1pos, 0, 180);
   s2pos = constrain(s2pos, 0, 180);
 
-  servo1.write(s1pos);
   servo2.write(s2pos);
 
-  lastS1pos = s1pos;
   lastS2pos = s2pos;
   lastServoUpdate = now;
 
-  Serial.print("Servos s1:");
-  Serial.print(s1pos);
-  Serial.print(" s2:");
+  Serial.print("Servo s2:");
   Serial.println(s2pos);
 }
 
@@ -321,7 +304,6 @@ void setup() {
   pinMode(TRIG_FRONT_PIN, OUTPUT);
   pinMode(ECHO_FRONT_PIN, INPUT);
 
-  servo1.attach(S1PIN);
   servo2.attach(S2PIN);
 
   pinMode(IN1_1, OUTPUT);
@@ -331,7 +313,6 @@ void setup() {
   pinMode(IN2_2, OUTPUT);
   pinMode(ENA_2, OUTPUT);
 
-  servo1.write(s1mid);
   servo2.write(s2mid);
 
   lastPidTime = millis();
@@ -347,7 +328,54 @@ void loop() {
   }
 }
 
+
+
+void updateSensors(){
+  float leftDist = readUltrasonicCm(TRIG_LEFT_PIN, ECHO_LEFT_PIN);
+  float rightDist = readUltrasonicCm(TRIG_RIGHT_PIN, ECHO_RIGHT_PIN);
+  float frontDist = readUltrasonicCm(TRIG_FRONT_PIN, ECHO_FRONT_PIN);
+
+  if (leftDist >= 0.0f) filteredLeft = (alpha * leftDist) + ((1.0f - alpha) * filteredLeft);
+  if (rightDist >= 0.0f) filteredRight = (alpha * rightDist) + ((1.0f - alpha) * filteredRight);
+  if (frontDist >= 0.0f) filteredFront = (alpha * frontDist) + ((1.0f - alpha) * filteredFront);
+}
+
+
+
 int turningMode = 0;
+// Blocking: runs the control loop for durationMs, then stops motors.
+void driveForMs_blocking(unsigned long durationMs, void (*updateSensors)() = nullptr) {
+  unsigned long start = millis();
+  while (millis() - start < durationMs) {
+    if (updateSensors) updateSensors(); // optional refresh of filteredLeft/Right
+
+    // --- your original control logic ---
+    float useMeasured = (turningMode == 2) ? filteredLeft : filteredRight;
+    float pidOutput = computePidOutput(useMeasured);
+
+    float servoOutput = pidOutput * ((turningMode == 2) ? 1.0f : -1.0f);
+    writeServosFromOutput(servoOutput);
+
+    int absOut = (int)abs(pidOutput);
+    float frac = (float)absOut / (float)MAX_CORRECTION_DEG;
+    if (frac > 1.0f) frac = 1.0f;
+    float reduction = frac * 0.6f;
+    int speed = (int)roundf((float)BASE_SPEED * (1.0f - reduction));
+    if (speed < MIN_SPEED) speed = MIN_SPEED;
+    setMotorsForward(true, speed);
+    // -------------------------------------
+
+    delay(10); // small yield to avoid burning CPU; tune as needed
+  }
+
+  // stop when time elapsed
+  setMotorsForward(false, 0);
+}
+
+
+
+
+
 int flag = 1;
 void testProgram(){
   while(turnCount < 12){
@@ -355,44 +383,74 @@ void testProgram(){
     float leftDist = readUltrasonicCm(TRIG_LEFT_PIN, ECHO_LEFT_PIN);
     float rightDist = readUltrasonicCm(TRIG_RIGHT_PIN, ECHO_RIGHT_PIN);
     float frontDist = readUltrasonicCm(TRIG_FRONT_PIN, ECHO_FRONT_PIN);
-  
+
     if (leftDist >= 0.0f) filteredLeft = (alpha * leftDist) + ((1.0f - alpha) * filteredLeft);
     if (rightDist >= 0.0f) filteredRight = (alpha * rightDist) + ((1.0f - alpha) * filteredRight);
     if (frontDist >= 0.0f) filteredFront = (alpha * frontDist) + ((1.0f - alpha) * filteredFront);
-    if(filteredFront < 50){
+    if(filteredFront < 40){
       turnCount++;
       if(flag){
-        preciseSampleUltrasonics(6, 20);
-        if(filteredLeft > 80) activeTurnMode = 1;
-        else activeTurnMode = 2;
+        stopMotors();
+        delay(20);
+        preciseSampleUltrasonics(3, 20);
+        delay(10);
+        if(filteredLeft > 80) turningMode = 1;
+        else turningMode = 2;
         flag = 0;
+        setMotorsForward(true, 230);
       }
-      servo1.write(s1mid + (42 * ((activeTurnMode == 1) ? 1 : -1)));
-      servo2.write(s2mid - (42 * ((activeTurnMode == 1) ? 1 : -1)));
-      delay(800);
-      servo1.write(s1mid);
+      servo2.write(s2mid - (42 * ((turningMode == 1) ? 1 : -1)));
+      delay(750);
       servo2.write(s2mid);
-    }
-    if(activeTurnMode == 1){
-      if(filteredRight < 20){
-        servo1.write(s1mid + (5 * ((activeTurnMode == 1) ? 1 : -1)));
-        servo2.write(s2mid - (5 * ((activeTurnMode == 1) ? 1 : -1)));
-        delay(70);
-        servo1.write(s1mid);
+      delay(10);
+      stopMotors();
+      preciseSampleUltrasonics(3,20);
+      setMotorsForward(true, 230);
+    }/*
+    if(turningMode == 1){
+      if(filteredRight < 25){
+        servo2.write(s2mid - (25-filteredRight));
+        delay(100);
+        servo2.write(s2mid);
+      }
+      if(filteredLeft < 25){
+        servo2.write(s2mid + (25-filteredLeft));
+        delay(100);
         servo2.write(s2mid);
       }
     }
-    else if(activeTurnMode == 2){
-      if(filteredLeft < 20){
-        servo1.write(s1mid + (5 * ((activeTurnMode == 1) ? 1 : -1)));
-        servo2.write(s2mid - (5 * ((activeTurnMode == 1) ? 1 : -1)));
-        delay(70);
-        servo1.write(s1mid);
+    else if(turningMode == 2){
+      if(filteredLeft < 25){
+        servo2.write(s2mid + (25-filteredLeft));
+        delay(100); // ~5cm
         servo2.write(s2mid);
       }
+      if(filteredRight < 25){
+        servo2.write(s2mid - (25-filteredRight));
+        delay(100);
+        servo2.write(s2mid);
+      }
+    }*/
+    if(turnCount){
+      // Choose measured value for wall follow: if locked to right, follow right; otherwise follow left.
+      float useMeasured = (turningMode == 2) ? filteredLeft : filteredRight;
+      float pidOutput = computePidOutput(useMeasured);
+  
+      // If following right side, invert sign so control steering orientation stays intuitive
+      float servoOutput = pidOutput * ((turningMode == 2) ? 1.0f : -1.0f);
+  
+      writeServosFromOutput(servoOutput);
+  
+      int absOut = (int)abs(pidOutput);
+      float frac = (float)absOut / (float)MAX_CORRECTION_DEG;
+      if (frac > 1.0f) frac = 1.0f;
+      float reduction = frac * 0.6f;
+      int speed = (int)roundf((float)BASE_SPEED * (1.0f - reduction));
+      if (speed < MIN_SPEED) speed = MIN_SPEED;
+      setMotorsForward(true, speed);
     }
   }
-  delay(700);
+  driveForMs_blocking(1500, updateSensors);
   stopMotors();
 }
 
@@ -432,6 +490,7 @@ void runProgram() {
     if (activeTurnMode == 0) Serial.println("NONE (start in middle)");
     else Serial.println(activeTurnMode == 1 ? "LEFT" : "RIGHT");
   }
+
 
   while (turnCount < 11) {
     // read sonars (fast single readings + EMA update)
@@ -478,10 +537,8 @@ void runProgram() {
           // rotateUntilSideUnder(chosenSide, SIDE_TURN_STOP_CM, TURN_TIMEOUT_MS);
           setMotorsForward(true, 90);
           delay(5);
-          servo1.write(s1mid + (42 * ((activeTurnMode == 1) ? 1 : -1)));
           servo2.write(s2mid - (42 * ((activeTurnMode == 1) ? 1 : -1)));
           delay(1450);
-          servo1.write(s1mid);
           servo2.write(s2mid);
           if(filteredLeft < 30){
             delay(625 - (625 * ((activeTurnMode == 1) ? 1 : -1)));
@@ -584,7 +641,6 @@ void runProgram() {
 
   // After running until turnCount limit, drive forward then stop
   driveForwardStraight(120);
-  servo1.write(s1mid - (7 * ((activeTurnMode == 1) ? 1 : -1)));
   servo2.write(s2mid + (7 * ((activeTurnMode == 1) ? 1 : -1)));
   delay(1000);
   stopMotors();

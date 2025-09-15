@@ -229,6 +229,10 @@ The final build is **strong, lightweight, reliable, and modular**.
   - FINISH  
 
 ### 🧠 The robot's operating logic and code sequence <a id="logic"></a>
+
+ - **PID wall-following**
+   - The robot uses a classic PID loop to maintain a set distance from the wall: `error = targetdistance - measured_distance` (measured from the active side ultrasonic). Readings are first smoothed with an EMA to suppress noise. The PID output (clamped to a maximum correction in degrees) is translated into servo angle offsets around `spos`; when following the right wall the output sign is inverted so a positive command always means “steer left” in code. Forward motor PWM is automatically scaled down based on how large the steering correction is, so the robot slows during aggressive steering.
+
  - **Ultrasonic sensors**
    - The ultrasonic sensors on the right and left sides determine how far away the robot is from the wall and in which way it should move. During the loop, if the robot is moving clockwise, it uses the data from the left sensor to orient itself (PID wall following); if it is moving counterclockwise, it uses the data from the right sensor. When it's time to turn, if the front sensor data is smaller than given threshold value, it checks both sides to learn which direction it should go then makes turn to that way, then realigns itself with **PID wall following algorithm** to move to the next turning point. *The front sensor is also checks the distance to the parking walls during parking time, enabling it to park in an orderly manner.*
  - **HuskyLens**

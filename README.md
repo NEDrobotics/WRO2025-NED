@@ -526,3 +526,4 @@ Team NEDrobotics’ project shows how teamwork, electronics, and coding can solv
 We created a **reliable, modular, and efficient autonomous robot** with Arduino, HuskyLens, and Lego EV3.  
 This repository is a **complete guide** for anyone who wants to understand, rebuild, or improve our design.
 
+

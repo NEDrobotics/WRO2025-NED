@@ -461,7 +461,7 @@ FUNCTION runProgram():
     <img src="https://img.shields.io/badge/Open%20Challenge-ff0000?logo=youtube&style=for-the-badge" />
   </a>
 
-  <a href="https://youtu.be/7gTdPHDWfM0" target="_blank">
+  <a href="https://youtu.be/Fkb7Ndxywkc" target="_blank">
     <img src="https://img.shields.io/badge/Obstacle%20Challenge-ff0000?logo=youtube&style=for-the-badge" />
   </a>
 </p>
